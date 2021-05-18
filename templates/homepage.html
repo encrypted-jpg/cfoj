@@ -1,0 +1,159 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <title>CFOJ</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/loader.css' %}">
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<div class="wrapper d-flex align-items-stretch">
+    <nav id="sidebar">
+        <div class="custom-menu">
+            <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                <i class="fa fa-bars"></i>
+                <span class="sr-only">Toggle Menu</span>
+            </button>
+        </div>
+        <div class="p-4 pt-5">
+            <h1><a href="" class="logo">CFOJ</a></h1>
+            <ul class="list-unstyled components mb-5">
+                <li class="active">
+                    <a href="#">Ladders</a>
+                </li>
+                <li>
+                    <a href="/categories">Categories</a>
+                </li>
+                <li>
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false"
+                       class="dropdown-toggle">Pages</a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+                        <li>
+                            <a href="#">Page 1</a>
+                        </li>
+                        <li>
+                            <a href="#">Page 2</a>
+                        </li>
+                        <li>
+                            <a href="#">Page 3</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <script>
+                $('document').ready(function () {
+                    $('.loader').css('visibility', 'hidden');
+
+                    function getCookie(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                // Does this cookie string begin with the name we want?
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+
+                    function handle_response(response) {
+                        console.log(response.head);
+                        var handle = document.getElementById('handle');
+                        document.getElementById("handle_head").innerText = response.head;
+                        handle.value = '';
+                        if (response.success === false) {
+                            $('.loader').css('visibility', 'hidden');
+                        } else {
+                            window.location.href = window.location.href;
+                        }
+                    }
+
+                    var btn = document.getElementById('handle_button');
+                    btn.onclick = function () {
+                        var sidebar = document.getElementById('sidebar');
+                        var form = document.getElementById('handle_form');
+                        var handle = document.getElementById('handle');
+                        if (handle.value === "") {
+                            return false
+                        }
+                        $('.loader').css('visibility', 'visible');
+                        $.ajax({
+                            data: {
+                                handle: handle.value,
+                                csrfmiddlewaretoken: getCookie("csrftoken")
+                            },
+                            type: 'post',
+                            url: "/handle_data/",
+                            success: function (response) {
+                                handle_response(response);
+                            },
+                            error: function (response) {
+                                console.log("Error");
+                                $('.loader-wrapper').fadeOut('fast');
+                            }
+                        });
+                    }
+                })
+            </script>
+            <script>
+                $(window).on("load", function () {
+                    $(".loader-wrapper").fadeOut("fast");
+                });
+            </script>
+            <div class="mb-5">
+                <h3 class="h6" id="handle_head">{{ handle }}</h3>
+                <form method="post" class="colorlib-subscribe-form" id="handle_form">
+                    {% csrf_token %}
+                    <div class="form-group d-flex">
+                        <div class="icon"><span class="icon-paper-plane"></span></div>
+                        <input type="text" class="form-control" placeholder="Enter CodeForces Handle" name="handle"
+                               id="handle"
+                               required>
+                    </div>
+                    <button type="button" class="form-control" id="handle_button">Login</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content  -->
+    <div id="content" class="p-4 p-md-4 pt-5 col-md-6" style="left:250px;position:absolute;">
+        <h2 class="mb-4">Sidebar #02</h2>
+    </div>
+    <div class="loader">
+        <section id="global">
+            <div class="load-box" style="left:160px;position: relative;">
+                <div id="top" class="mask">
+                    <div class="plane"></div>
+                </div>
+                <div id="middle" class="mask">
+                    <div class="plane"></div>
+                </div>
+                <div id="bottom" class="mask">
+                    <div class="plane"></div>
+                </div>
+            </div>
+            <p><i>EXTRACTING YOUR DATA.... PLEASE WAIT...</i></p>
+        </section>
+    </div>
+    <div class="loader-wrapper">
+        <span class="loader2"><span class="loader-inner"></span></span>
+    </div>
+</div>
+<script src="{% static 'js/popper.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
