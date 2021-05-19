@@ -87,15 +87,66 @@ def submission_scraper(handle):
                 print(exc)
                 print(f"{bcolors.FAIL} [-] Fetching Submissions from URL Failed...." + url, bcolors.ENDC)
                 break
-    file = open("user_data/" + handle + ".pickle", "wb")
     submissions.sort()
-    pickle.dump(submissions, file)
-    file.close()
+    with open("user_data/" + handle + ".pickle", "wb") as file:
+        pickle.dump(submissions, file)
     print("[+]", time.time() - start, "sec")
     return submissions
 
 
+def update_submissions(handle):
+    start = time.time()
+    url = "https://codeforces.com/submissions/" + handle + "/page/1"
+    data = requests.get(url)
+    soup = BeautifulSoup(data.text, "html.parser")
+    divs = soup.find_all('div', {'class': 'pagination'})[-1]
+    spans = divs.find_all('span', {'class': 'page-index'})
+    n = []
+    for x in spans:
+        n.append(int(x.text.strip()))
+    n = max(n)
+    try:
+        submissions = operation(url, handle)
+    except Exception as e:
+        print(e)
+        return []
+    got = False
+    change = False
+    try:
+        with open("user_data/" + handle + ".pickle", "rb") as file:
+            lst = pickle.load(file)
+    except Exception as e:
+        return submission_scraper(handle)
+    first = lst[0]
+    for x in submissions:
+        if x.date == first.date:
+            got = True
+            break
+        else:
+            lst.append(x)
+            change = True
+    i = 2
+    while not got:
+        url = "https://codeforces.com/submissions/" + handle + "/page/" + str(i)
+        submissions = operation(url, handle)
+        for x in submissions:
+            if x.date == first.date:
+                got = True
+                break
+            else:
+                lst.append(x)
+        i += 1
+    lst.sort()
+    with open("user_data/" + handle + ".pickle", "wb") as file:
+        pickle.dump(lst, file)
+    print("[+]", time.time() - start, "sec")
+    return lst, change
+
+
 if __name__ == "__main__":
     handle = "encrypted_jpg"
-    submissions = submission_scraper(handle=handle)
+    # submissions = submission_scraper(handle=handle)
+    # print(len(submissions))
+    # updated = update_submissions(handle=handle)
+    # print(len(updated))
     print(f"{bcolors.OKGREEN}[+] Data Saved to", handle + ".pickle File", bcolors.ENDC)

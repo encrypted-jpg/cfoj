@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import pickle
 import time
+import concurrent.futures
 
 
 class bcolors:
@@ -106,11 +107,108 @@ def getProblemUrls(url=""):
     return updateProblems(contest)
 
 
-if __name__ == "__main__":
+def optimized_update_problems(pro):
+    purl = pro.url
+    print("[+] Fetching Problem Tags from...", purl)
+    data = requests.get(purl)
+    soup = BeautifulSoup(data.text, "html.parser")
+    divs = soup.find_all("span", {"class": "tag-box"})
+    for x in divs:
+        pro.tags.append(x.text.strip())
+    try:
+        pro.difficulty = int(pro.tags[-1][1:])
+    except:
+        pass
+    print(f"{bcolors.OKGREEN}[+] Success....", purl, f"{bcolors.ENDC}")
+    return pro
+
+
+def optimized_get_urls(url):
+    print("[+] Fetching Problem Urls from...", url)
+    data = requests.get(url)
+    soup = BeautifulSoup(data.text, "html.parser")
+    tab = soup.find("table", {"class": "problems"})
+    trs = soup.find_all("tr")
+    tr = trs[3]
+    link_letter = tr.find_all("td", {"class": "id"})
+    tds = tr.find_all("td")
+    base_url = "https://codeforces.com"
+    plist = []
+    for x in range(0, len(tds), 4):
+        l = tds[x].find("a")
+        curl = base_url + l.get("href")
+        cid = l.text.strip()
+        l = tds[x + 1].find("a")
+        cname = l.text
+        num = tds[x + 3].text.strip().replace("x", "").split()[0]
+        num = int(num)
+        plist.append(Problem(cname, curl, cid, num))
+    rt = soup.find("table", {"class": "rtable"})
+    tr = rt.find("tr").text.strip()
+    contest = Contest(tr, url)
+    contest.problems = plist
+    print(f"{bcolors.OKGREEN}[+] Success....", url, f"{bcolors.ENDC}")
+    return contest
+
+
+def optimized_problem_scraper(start, end):
+    start_time = time.time()
+    url = "https://codeforces.com/contest/"
+    contests = []
+    URLS = [url + str(i) for i in range(start, end, -1)]
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_url = {executor.submit(optimized_get_urls, url): url for url in URLS}
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                contests.append(future.result())
+            except Exception as e:
+                print(e)
+                print(
+                    f"{bcolors.FAIL}[-] Fetching Problem Urls Failed from.... ",
+                    url,
+                    bcolors.ENDC,
+                )
+    final_problems = []
+    purls = []
+    for x in contests:
+        purls += x.problems
+    print(len(purls))
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future_to_problem = {executor.submit(optimized_update_problems, problem): problem for problem in purls}
+        for future in concurrent.futures.as_completed(future_to_problem):
+            problem = future_to_problem[future]
+            try:
+                final_problems.append(future.result())
+            except Exception as e:
+                print(
+                    f"{bcolors.FAIL}[-] Fetching Problem Tags Failed from.... ",
+                    problem.url,
+                    bcolors.ENDC,
+                )
+    for x in contests:
+        for y in x.problems:
+            for z in final_problems:
+                if y.url == z.url:
+                    y.tags = z.tags
+                    y.difficulty = z.difficulty
+                    break
+    name = "data/data" + str(start) + "-" + str(end) + ".pickle"
+    with open(name, "wb") as file:
+        pickle.dump(contests, file)
+    print(f"{bcolors.OKGREEN}[+] Data Saved to", name, f"....{bcolors.ENDC}")
+    print(
+        f"{bcolors.OKGREEN}[+] Time Taken = ",
+        round(time.time() - start_time, 2),
+        f"sec{bcolors.ENDC}",
+    )
+
+
+def previous():
     start = time.time()
     url = "https://codeforces.com/contest/"
     contests = []
-    for x in range(1299, 1099, -1):
+    for x in range(1525, 1400, -1):
         try:
             cont = getProblemUrls(url + str(x))
             contests.append(cont)
@@ -130,3 +228,7 @@ if __name__ == "__main__":
         round(time.time() - start, 2),
         f"sec{bcolors.ENDC}",
     )
+
+
+if __name__ == "__main__":
+    optimized_problem_scraper(800, 500)

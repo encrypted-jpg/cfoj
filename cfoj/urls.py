@@ -22,4 +22,5 @@ urlpatterns = [
     path("", index),
     path("categories/", categories),
     path("handle_data/", handle_data),
+    path("update_handle/", update_handle),
 ]

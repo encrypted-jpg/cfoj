@@ -34,21 +34,6 @@
                 <li>
                     <a href="/categories">Categories</a>
                 </li>
-                <li>
-                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false"
-                       class="dropdown-toggle">Pages</a>
-                    <ul class="collapse list-unstyled" id="pageSubmenu">
-                        <li>
-                            <a href="#">Page 1</a>
-                        </li>
-                        <li>
-                            <a href="#">Page 2</a>
-                        </li>
-                        <li>
-                            <a href="#">Page 3</a>
-                        </li>
-                    </ul>
-                </li>
             </ul>
             <script>
                 $('document').ready(function () {
@@ -82,6 +67,26 @@
                         }
                     }
 
+                    var tdata = document.getElementById('table-data');
+
+                    function update_response(response) {
+                        if (response.change === false){
+                            return false;
+                        }
+                        let tag_lst = response.tag_lst;
+                        let thtml = "";
+                        for (let i = 0; i < tag_lst.length; i++) {
+                            let p = tag_lst[i];
+                            if (p[2] == null) {
+                                thtml += "<tr>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url +"' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>No Submission</td>" + "</tr>";
+                            }
+                            else{
+                                thtml += "<tr style='background-color:lightgreen; color:black;'>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url +"' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>" + "<a href='" + p[2].url + "' target='_blank' style='color:red'>View Submission</a>" + "</td>" + "</tr>";
+                            }
+                        }
+                        tdata.innerHTML = thtml;
+                    }
+
                     var btn = document.getElementById('handle_button');
                     btn.onclick = function () {
                         var sidebar = document.getElementById('sidebar');
@@ -107,6 +112,27 @@
                             }
                         });
                     }
+                    var intervalId = window.setInterval(function () {
+                        /// call your function here
+                        if ("{{ handle_name }}" === "") {
+                            return false;
+                        }
+                        $.ajax({
+                            data: {
+                                handle: "{{ handle_name }}",
+                                "tag": "{{ head }}",
+                                csrfmiddlewaretoken: getCookie("csrftoken")
+                            },
+                            type: 'post',
+                            url: "/update_handle/",
+                            success: function (response) {
+                                update_response(response);
+                            },
+                            error: function (response) {
+                                console.log("Error");
+                            }
+                        });
+                    }, 20000);
                 })
             </script>
             <script>
@@ -129,9 +155,8 @@
             </div>
         </div>
     </nav>
-
     <!-- Page Content  -->
-    <div id="content" class="p-4 p-md-4 pt-5 col-md-6" style="left:250px;position:absolute;">
+    <div id="content" class="p-4 p-md-4 pt-5 col-md-9" style="left:250px;position:absolute;">
         <section class="ftco-section">
             <div class="container">
                 <div class="row justify-content-center">
@@ -150,7 +175,7 @@
                                     {% endfor %}
                                 </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="table-data">
                                 {% if request.user.username is not None and request.user.username != "" %}
                                     {% for i, problem, sub in tag_lst %}
                                         {% if sub != None %}
@@ -206,7 +231,7 @@
             <p><i>EXTRACTING YOUR DATA.... PLEASE WAIT...</i></p>
         </section>
     </div>
-<div class="loader-wrapper">
+    <div class="loader-wrapper">
         <span class="loader2"><span class="loader-inner"></span></span>
     </div>
 </div>
