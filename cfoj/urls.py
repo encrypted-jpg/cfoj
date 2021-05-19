@@ -21,6 +21,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", index),
     path("categories/", categories),
+    path("ladders/", ladders),
     path("handle_data/", handle_data),
     path("update_handle/", update_handle),
 ]

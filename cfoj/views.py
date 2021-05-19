@@ -195,5 +195,50 @@ def categories(request):
         "head": "Categories",
         "table_head": ("S.No", "Category Name", "Number of Problems"),
         "tag_lst": lst,
+        "main": "categories"
+    }
+    return render(request, "categories.html", context=context)
+
+
+def ladders(request):
+    with open("data/ladder_sorted_dict.pickle", "rb") as file:
+        tag_dict = pickle.load(file)
+    if request.GET.get("tag") is not None:
+        return tag_problem(request, tag_dict, request.GET.get("tag"))
+    lst = []
+    i = 1
+    for key, value in tag_dict.items():
+        lst.append((i, key, len(value)))
+        i += 1
+    head = "Enter CodeForces Handle to View Submissions"
+    if request.POST.get("handle") is not None:
+        handle = request.POST.get("handle")
+        try:
+            logout(request)
+            submissions = submission_scraper(handle=handle)
+            if not submissions:
+                raise Exception
+            head = "Hello, " + handle
+            user = authenticate(request, username=handle, password="1")
+            if user is not None:
+                login(request, user)
+            else:
+                User.objects.create(username=handle, password="1")
+                user = User.objects.get(username=handle)
+                user.set_password("1")
+                user.save()
+                login(request, user)
+        except Exception as e:
+            print(e)
+            head = "Invalid Handle!! Enter Valid Handle.."
+    if request.user.username is not None and request.user.username != "":
+        handle = request.user.username
+        head = "Hello, " + handle
+    context = {
+        "handle": head,
+        "head": "Categories",
+        "table_head": ("S.No", "Category Name", "Number of Problems"),
+        "tag_lst": lst,
+        "main": "ladders"
     }
     return render(request, "categories.html", context=context)

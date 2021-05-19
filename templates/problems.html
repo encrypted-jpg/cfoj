@@ -17,6 +17,9 @@
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<div class="progress-container fixed-top">
+    <span class="progress-bar"></span>
+</div>
 <div class="wrapper d-flex align-items-stretch">
     <nav id="sidebar">
         <div class="custom-menu">
@@ -29,15 +32,53 @@
             <h1><a href="/" class="logo">CFOJ</a></h1>
             <ul class="list-unstyled components mb-5">
                 <li class="active">
-                    <a href="#">Ladders</a>
+                    <a href="/ladders">Ladders</a>
                 </li>
                 <li>
                     <a href="/categories">Categories</a>
                 </li>
             </ul>
+            <script src="{% static 'js/main.js' %}"></script>
+            <script>
+                function scrollProgressBar() {
+                    var getMax = function () {
+                        return $(document).height() - $(window).height();
+                    };
+
+                    var getValue = function () {
+                        return $(window).scrollTop();
+                    };
+
+                    var progressBar = $(".progress-bar"),
+                        max = getMax(),
+                        value,
+                        width;
+
+                    var getWidth = function () {
+                        // Calculate width in percentage
+                        value = getValue();
+                        width = (value / max) * 100;
+                        width = width + "%";
+                        return width;
+                    };
+
+                    var setWidth = function () {
+                        progressBar.css({width: getWidth()});
+                    };
+                    setWidth();
+
+                    $(document).on("scroll", setWidth);
+                    $(window).on("resize", function () {
+                        // Need to reset max
+                        max = getMax();
+                        setWidth();
+                    });
+                }
+            </script>
             <script>
                 $('document').ready(function () {
                     $('.loader').css('visibility', 'hidden');
+                    scrollProgressBar();
 
                     function getCookie(name) {
                         let cookieValue = null;
@@ -70,7 +111,7 @@
                     var tdata = document.getElementById('table-data');
 
                     function update_response(response) {
-                        if (response.change === false){
+                        if (response.change === false) {
                             return false;
                         }
                         let tag_lst = response.tag_lst;
@@ -78,10 +119,9 @@
                         for (let i = 0; i < tag_lst.length; i++) {
                             let p = tag_lst[i];
                             if (p[2] == null) {
-                                thtml += "<tr>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url +"' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>No Submission</td>" + "</tr>";
-                            }
-                            else{
-                                thtml += "<tr style='background-color:lightgreen; color:black;'>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url +"' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>" + "<a href='" + p[2].url + "' target='_blank' style='color:red'>View Submission</a>" + "</td>" + "</tr>";
+                                thtml += "<tr>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url + "' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>No Submission</td>" + "</tr>";
+                            } else {
+                                thtml += "<tr style='background-color:lightgreen; color:black;'>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url + "' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>" + "<a href='" + p[2].url + "' target='_blank' style='color:red'>View Submission</a>" + "</td>" + "</tr>";
                             }
                         }
                         tdata.innerHTML = thtml;
@@ -238,7 +278,6 @@
 
 <script src="{% static 'js/popper.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/main.js' %}"></script>
 <script src="{% static 'js/table.js' %}"></script>
 </body>
 </html>
