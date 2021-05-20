@@ -76,6 +76,9 @@
             </script>
             <script>
                 $('document').ready(function () {
+                    $(".clickable-row").click(function () {
+                        window.location = $(this).data("href");
+                    });
                     scrollProgressBar();
                     $('.loader').css('visibility', 'hidden');
 
@@ -177,9 +180,9 @@
                                 </thead>
                                 <tbody>
                                 {% for i, tag, num in tag_lst %}
-                                    <tr>
+                                    <tr class="clickable-row" data-href="/{{ main }}?tag={{ tag }}" style="cursor: pointer;">
                                         <th scope="row">{{ i }}</th>
-                                        <td><a href="/{{ main }}?tag={{ tag }}">{{ tag }}</a></td>
+                                        <td>{{ tag }}</td>
                                         <td>{{ num }}</td>
                                     </tr>
                                 {% endfor %}
@@ -191,7 +194,7 @@
             </div>
         </section>
     </div>
-    <div class="loader">
+    <div class="loader" style="visibility:hidden">
         <section id="global">
             <div class="load-box" style="left:160px;position: relative;">
                 <div id="top" class="mask">

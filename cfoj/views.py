@@ -125,8 +125,9 @@ def tag_problem(request, tag_dict, tag):
     if request.user.username is not None and request.user.username != "":
         handle = request.POST.get("handle") if request.POST.get("handle") is not None else request.user.username
         head = "Hello, " + handle
-        with open("user_data/" + handle + ".pickle", "rb") as file:
-            submissions = pickle.load(file)
+        # with open("user_data/" + handle + ".pickle", "rb") as file:
+        #     submissions = pickle.load(file)
+        submissions = update_submissions(handle=handle)[0]
         plist = tag_lst.copy()
         tag_lst = []
         for i, x in plist:

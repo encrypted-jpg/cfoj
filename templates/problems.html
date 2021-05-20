@@ -79,6 +79,9 @@
                 $('document').ready(function () {
                     $('.loader').css('visibility', 'hidden');
                     scrollProgressBar();
+                    $(".clickable-row").click(function () {
+                        window.open($(this).data("href"));
+                    });
 
                     function getCookie(name) {
                         let cookieValue = null;
@@ -119,9 +122,9 @@
                         for (let i = 0; i < tag_lst.length; i++) {
                             let p = tag_lst[i];
                             if (p[2] == null) {
-                                thtml += "<tr>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url + "' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>No Submission</td>" + "</tr>";
+                                thtml += "<tr>" + "<th scope='row' class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[0].toString() + "</th>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[1].name + "</td>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[1].id + "</td>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[1].submissions.toString() + "</td>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>No Submission</td>" + "</tr>";
                             } else {
-                                thtml += "<tr style='background-color:lightgreen; color:black;'>" + "<th scope='row'>" + p[0].toString() + "</th>" + "<td><a href='" + p[1].url + "' target='_blank'>" + p[1].name + "</a></td>" + "<td>" + p[1].id + "</td>" + "<td>" + p[1].submissions.toString() + "</td>" + "<td>" + "<a href='" + p[2].url + "' target='_blank' style='color:red'>View Submission</a>" + "</td>" + "</tr>";
+                                thtml += "<tr style='background-color:lightgreen; color:black;'>" + "<th scope='row' class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[0].toString() + "</th>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[1].name + "</td>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[1].id + "</td>" + "<td class='clickable-row' data-href='" + p[1].url + "' style='cursor: pointer;'>" + p[1].submissions.toString() + "</td>" + "<td class='clickable-row' data-href='" + p[2].url + "' style='cursor: pointer;background-color: yellow;'>View Submission</td>" + "</tr>";
                             }
                         }
                         tdata.innerHTML = thtml;
@@ -172,7 +175,7 @@
                                 console.log("Error");
                             }
                         });
-                    }, 20000);
+                    }, 60000);
                 })
             </script>
             <script>
@@ -220,20 +223,30 @@
                                     {% for i, problem, sub in tag_lst %}
                                         {% if sub != None %}
                                             <tr style="background-color:lightgreen; color:black;">
-                                                <th scope="row">{{ i }}</th>
-                                                <td><a href="{{ problem.url }}" target="_blank"
-                                                       style="color:red">{{ problem.name }}</a></td>
-                                                <td>{{ problem.id }}</td>
-                                                <td>{{ problem.submissions }}</td>
-                                                <td><a href="{{ sub.url }}" target="_blank" style="color:red">View
-                                                    Submission</a></td>
+                                                <th scope="row" class="clickable-row" data-href="{{ problem.url }}"
+                                                    style="cursor: pointer;">{{ i }}</th>
+                                                <td class="clickable-row" data-href="{{ problem.url }}"
+                                                    style="cursor: pointer;">{{ problem.name }}</td>
+                                                <td class="clickable-row" data-href="{{ problem.url }}"
+                                                    style="cursor: pointer;">{{ problem.id }}</td>
+                                                <td class="clickable-row" data-href="{{ problem.url }}"
+                                                    style="cursor: pointer;">{{ problem.submissions }}</td>
+                                                <td class="clickable-row" data-href="{{ sub.url }}"
+                                                    style="cursor: pointer;background-color: yellow;">View Submission
+                                                </td>
                                                 {% else %}
                                             <tr>
-                                            <th scope="row">{{ i }}</th>
-                                            <td><a href="{{ problem.url }}" target="_blank">{{ problem.name }}</a></td>
-                                            <td>{{ problem.id }}</td>
-                                            <td>{{ problem.submissions }}</td>
-                                            <td>No Submission</td>
+                                            <th scope="row" class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ i }}</th>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ problem.name }}</td>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ problem.id }}</td>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ problem.submissions }}</td>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">No Submission
+                                            </td>
                                         {% endif %}
                                     </tr>
                                     {% endfor %}
@@ -255,7 +268,7 @@
             </div>
         </section>
     </div>
-    <div class="loader">
+    <div class="loader" style="visibility:hidden;">
         <section id="global">
             <div class="load-box" style="left:160px;position: relative;">
                 <div id="top" class="mask">
