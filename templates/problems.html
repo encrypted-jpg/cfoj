@@ -253,10 +253,14 @@
                                 {% else %}
                                     {% for i, problem in tag_lst %}
                                         <tr>
-                                            <th scope="row">{{ i }}</th>
-                                            <td><a href="{{ problem.url }}" target="_blank">{{ problem.name }}</a></td>
-                                            <td>{{ problem.id }}</td>
-                                            <td>{{ problem.submissions }}</td>
+                                            <th scope="row" class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ i }}</th>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ problem.name }}</td>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ problem.id }}</td>
+                                            <td class="clickable-row" data-href="{{ problem.url }}"
+                                                style="cursor: pointer;">{{ problem.submissions }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% endif %}
